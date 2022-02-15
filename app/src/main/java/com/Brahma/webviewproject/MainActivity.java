@@ -18,29 +18,53 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.Brahma.SessionManager;
+
 public class MainActivity extends AppCompatActivity {
 
     WebView webView;
     String currenturl = "";
     private Boolean exit = false;
 
+    SessionManager sessionManager;
+    String id;
+    ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ProgressDialog progressDialog = new ProgressDialog(this);
+        sessionManager = new SessionManager(this);
+
+        progressDialog  = new ProgressDialog(this);
         progressDialog.setMessage("Loading Data...");
         progressDialog.setCancelable(false);
 
         getSupportActionBar().hide();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
         webView = findViewById(R.id.webView);
+try {
+    id = sessionManager.getFCMId();
+    webview("http://brahmarealty.com/app/home.php");
 
+    Log.d("webviewid", id);
+}catch (Exception e){
+    webview("http://brahmarealty.com/app/");
+}
+
+
+
+
+    }
+
+    public void webview(String url){
         webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("http://brahmarealty.com/app/");
+        webView.loadUrl(url);
+
+        this.webView.getSettings().setDomStorageEnabled(true);
+        this.webView.getSettings().setJavaScriptEnabled(true);
 
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -52,6 +76,13 @@ public class MainActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
                 view.loadUrl(url);
+
+                if(url.equalsIgnoreCase("http://brahmarealty.com/app/home.php")){
+
+                    sessionManager.setFCMId("1");
+                }
+
+                Log.d("url",url);
                 return true;
             }
 
@@ -87,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                         == MotionEvent.ACTION_UP && webView.canGoBack()) {
                     //handler.sendEmptyMessage(1);
 
-                    if (currenturl.equalsIgnoreCase("http://collegeprojectz.com/brahma_realty/") || currenturl.equalsIgnoreCase("http://sklgranites.in/")) {
+                    if (currenturl.equalsIgnoreCase("http://brahmarealty.com/app/") || currenturl.equalsIgnoreCase("http://brahmarealty.com/app/")) {
                         if (exit) {
                             Intent intent = new Intent(Intent.ACTION_MAIN);
                             intent.addCategory(Intent.CATEGORY_HOME);
