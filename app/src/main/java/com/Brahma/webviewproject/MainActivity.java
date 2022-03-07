@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        progressDialog  = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading Data...");
         progressDialog.setCancelable(false);
 
@@ -45,21 +46,19 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         webView = findViewById(R.id.webView);
-try {
-    id = sessionManager.getFCMId();
-    webview("http://brahmarealty.com/app/home.php");
+        try {
+            id = sessionManager.getFCMId();
+            webview("http://brahmarealty.com/app/home.php");
 
-    Log.d("webviewid", id);
-}catch (Exception e){
-    webview("http://brahmarealty.com/app/");
-}
+            Log.d("webviewid", id);
 
-
-
+        } catch (Exception e) {
+            webview("http://brahmarealty.com/app/");
+        }
 
     }
 
-    public void webview(String url){
+    public void webview(String url) {
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl(url);
 
@@ -77,12 +76,20 @@ try {
 
                 view.loadUrl(url);
 
-                if(url.equalsIgnoreCase("http://brahmarealty.com/app/home.php")){
+                if (url.equalsIgnoreCase("http://brahmarealty.com/app/home.php")) {
 
                     sessionManager.setFCMId("1");
                 }
 
-                Log.d("url",url);
+                if (url.startsWith("tel:") || url.startsWith("whatsapp:") || url.startsWith("intent://") || url.startsWith("http://")) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(url));
+                    startActivity(intent);
+                    webView.goBack();
+                    return true;
+                }
+
+                Log.d("url", url);
                 return true;
             }
 
@@ -149,10 +156,10 @@ try {
     @Override
     public void onBackPressed() {
 
-        if(webView.canGoBack()){
+        if (webView.canGoBack()) {
             webView.goBack();
 
-        }else{
+        } else {
             super.onBackPressed();
 
             if (exit) {
