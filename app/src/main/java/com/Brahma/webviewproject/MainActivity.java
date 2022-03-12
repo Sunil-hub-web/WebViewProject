@@ -45,20 +45,26 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         webView = findViewById(R.id.webView);
+
         try {
+
             id = sessionManager.getFCMId();
             webview("http://brahmarealty.com/app/home.php");
 
             Log.d("webviewid", id);
 
         } catch (Exception e) {
+
             webview("http://brahmarealty.com/app/");
+
         }
 
     }
 
     public void webview(String url) {
+
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl(url);
 
@@ -74,23 +80,42 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
-                view.loadUrl(url);
+                //view.loadUrl(url);
+
+                Log.d("hjykrjter", "your current url when webpage loading.. finish" + url);
 
                 if (url.equalsIgnoreCase("http://brahmarealty.com/app/home.php")) {
 
                     sessionManager.setFCMId("1");
-                }
+                    view.loadUrl(url);
 
-                if (url.startsWith("tel:") || url.startsWith("whatsapp:") || url.startsWith("intent://") || url.startsWith("http://")) {
+                } else if (url.startsWith("whatsapp:")) {
+
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(Uri.parse(url));
                     startActivity(intent);
                     webView.goBack();
+
                     return true;
+
+                } else if (url.startsWith("tel:")) {
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));
+                    startActivity(intent);
+                   //currenturl = url;
+                    return true;
+
+                } else if (url != null && url != null && url.equals(currenturl)) {
+
+                    webView.goBack();
+
+                } else {
+
+                    view.loadUrl(url);
+                    currenturl = url;
                 }
 
-                Log.d("url", url);
                 return true;
+                //return false;
             }
 
             @Override
@@ -100,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 CookieSyncManager.getInstance().sync();
                 super.onPageFinished(view, url);
             }
+
 
         });
 
@@ -117,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         webView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -126,11 +153,14 @@ public class MainActivity extends AppCompatActivity {
                     //handler.sendEmptyMessage(1);
 
                     if (currenturl.equalsIgnoreCase("http://brahmarealty.com/app/") || currenturl.equalsIgnoreCase("http://brahmarealty.com/app/")) {
+
                         if (exit) {
+
                             Intent intent = new Intent(Intent.ACTION_MAIN);
                             intent.addCategory(Intent.CATEGORY_HOME);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent); // finish activity
+
                         } else {
                             Toast.makeText(getApplicationContext(), "Press Back again to Exit.",
                                     Toast.LENGTH_SHORT).show();
@@ -182,4 +212,5 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
 }
